@@ -1,0 +1,70 @@
+                     _ _   _             _   _  __       
+                    | | | (_)           | | (_)/ _|      
+     _ __ ___  _   _| | |_ _ _ __   ___ | |_ _| |_ _   _ 
+    | '_ ` _ \| | | | | __| | '_ \ / _ \| __| |  _| | | |
+    | | | | | | |_| | | |_| | | | | (_) | |_| | | | |_| |
+    |_| |_| |_|\__,_|_|\__|_|_| |_|\___/ \__|_|_|  \__, |
+                                                    __/ |
+                                                   |___/ 
+***************************************************************
+
+Description: A set of scripts (server, irssi client, desktop client) that work together to send and receive notifications from irssi.
+http://prowlapp.com/
+
+Version: 0.1
+
+Author: Nathan Chowning (nathanchowning@me.com)
+
+######
+# The multinotify-irssi.pl script is based on my irssi-prowl-notifier script which is based on
+# fnotify created by Thorsten Leemhuis
+# http://www.leemhuis.info/files/fnotify/
+######
+
+                 _   _ ___  __ _  __ _  ___ 
+                | | | / __|/ _` |/ _` |/ _ \
+                | |_| \__ \ (_| | (_| |  __/
+                 \__,_|___/\__,_|\__, |\___|
+                                  __/ |     
+                                 |___/
+***************************************************************
+
+This script requires the following perl modules:
+Gtk2::Notify
+WebService::Prowl (Not yet, but soon)
+IO::Socket::SSL (Not yet, but soon)
+
+SETTING UP THE SERVER:
+    -Edit multinotify-server.pl and add the listening IP address as well as the listening port
+    -The default number of connections is 5 you can change that by modifying the "Listen" value
+    -Be sure that you're not blocking access to the port that you decide to use
+
+    Once the server is setup, run it with:
+    perl multinotify-server.pl
+
+SETTING UP THE IRSSI CLIENT:
+    -Edit multinotify-irssi.pl to change IP_ADDRESS and PORT_NUMBER (located in the socketsend
+    subroutine) to match the values that you entered in multinotify-server.pl
+
+    Once you've edited it, copy it to ~/.irssi/scripts/ and do:
+    /script load multinotify-irssi.pl
+
+SETTING UP THE DESKTOP CLIENT:
+    -Edit multinotify-client.pl to change IP_ADDRESS and PORT_NUMBER to match the values that
+    you entered in multinotify-server.pl
+    -You'll need to have Gtk2::Notify on the computer that you'll be running this on
+
+    Once you've edited it, run it with:
+    perl multinotify-client.pl
+
+                     _            _       
+                    | |          | |      
+                    | |_ ___   __| | ___  
+                    | __/ _ \ / _` |/ _ \ 
+                    | || (_) | (_| | (_) |
+                     \__\___/ \__,_|\___/
+***************************************************************
+
+-Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
+-Add support for growl and snarl to the desktop client
+-Add support to the server to automatically send missed notifications to prowl
