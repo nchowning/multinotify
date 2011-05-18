@@ -30,7 +30,7 @@ Author: Nathan Chowning (nathanchowning@me.com)
 ***************************************************************
 
 This script requires the following perl modules:
-Gtk2::Notify
+Gtk2::Notify or Mac::Growl
 WebService::Prowl (Not yet, but soon)
 IO::Socket::SSL (Not yet, but soon)
 
@@ -66,5 +66,5 @@ SETTING UP THE DESKTOP CLIENT:
 ***************************************************************
 
 -Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
--Add support for growl and snarl to the desktop client
+-Add support for snarl to the desktop client
 -Add support to the server to automatically send missed notifications to prowl
