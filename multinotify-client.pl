@@ -1,27 +1,44 @@
-use constant APP_NAME => 'multinotify';
+#!/usr/bin/perl
+
+######
+# Multinotify Desktop Client
+# nchowning, 2011 - nathanchowning@me.com
+######
+
+# Set the app name and load the socket module
+use constant APP_NAME => 'multinotify-client';
 use IO::Socket::INET;
 
-if (eval{ require Gtk2::Notify; }){
-  $notifier = 'libnotify';
-} elsif (eval{ require Mac::Growl; }){
-  my @notify_on = ('alert');
-  Mac::Growl::RegisterNotifications(APP_NAME, \@notify_on, \@notify_on);
-  $notifier = 'growl';
-} else {
-  print <<HERE;
-    No notifier module installed. 
-    Please install one of the supported notification modules.
-HERE
-  die;
+my $IPADDRESS = '184.106.199.134';
+my $PORT = '5730';
+my $notifier;
+
+# Check to see which notification modules are installed
+# If none are installed, die
+if (eval{ require Gtk2::Notify; })
+{
+    $notifier = 'libnotify';
+}
+elsif (eval{ require Cocoa::Growl;})
+{
+    use Cocoa::Growl ':all';
+    $notifier = 'growl';
+}
+else
+{
+    print "!!!No notifier module installed!!!\n
+        Multinotify currently has built-in support for libnotify (Gtk2::Notify) and Growl (Cocoa::Growl).\n";
+    die;
 }
 
+# Flush
 $| = 1;
-
 my ($socket,$client_socket);
 
+# Socket variable initialization
 $socket = new IO::Socket::INET (
-    PeerHost => 'IP_ADDRESS',
-    PeerPort => 'PORT_NUMBER',
+    PeerHost => "$IPADDRESS",
+    PeerPort => "$PORT",
     Proto => 'tcp',
     ) or die "ERROR in Socket Creation : $!\n";
 
@@ -30,22 +47,10 @@ print "Connection Successful.\n";
 $data = "receive";
 print $socket "$data\n";
 
-sub notify {
-  my($username, $message) = @_;
-  if ($notifier eq 'libnotify'){
-    # libnotify is picky and doesn't like '<' or '>' so these two regex lines remove them
-    $message =~ s/<//gi;
-    $message =~ s/>//gi;
-    
-    my $notification = Gtk2::Notify->new($username, $message);
-    $notification->show;
-  } elsif ($notifier eq 'growl'){
-    Mac::Growl::PostNotification(APP_NAME, 'alert', $username, $message);
-  }
-}
-
 while(<$socket>)
 {
+#    my ($username,$message);
+
     # Store the username in $username and chomp it to remove the newline
     chomp($username = $_);
 
@@ -58,5 +63,47 @@ while(<$socket>)
 
     # Send the username and message to notify
     notify($username, $message);
+    print "$username: $message\n";
+
 }
 $socket->close();
+
+sub notify
+{
+    # Set the username & message that is passed to this function
+    my($username, $message) = @_;
+
+    if ($notifier eq 'libnotify')
+    {
+        ######
+        # Need to add line breaks at a certain point as libnotify doesn't
+        # clean that up for you (like growl does).
+        ######
+
+        # Strip '<' and '>' from the message
+        $message =~ s/<//g;
+        $message =~ s/>//g;
+
+        # Create the notification
+        my $notification = Gtk2::Notify->new($username, $message, 'irssi.png');
+
+        # Show the notification
+        $notification->show;
+    }
+    elsif ($notifier eq 'growl')
+    {
+        # Create growl notifier
+        growl_register(
+            app           => 'irssi',
+            icon          => 'irssi.png',
+            notifications => [qw(irssi)],
+        );
+        
+        # Show growl notification
+        growl_notify(
+            name        => 'irssi',
+            title       => "Message from: $username",
+            description => "$message"
+        );
+    }
+}

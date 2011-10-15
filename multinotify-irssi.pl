@@ -1,9 +1,20 @@
+######
+# Multinotify irssi Client
+# nchowning, 2011 - nathanchowning@me.com
+######
+
+######
+# Parts of this script are based on my irssi-prowl-notifier script which is based
+# on fnotify created by Thorsten Leemhuis
+# http://www.leemhuis.info/files/fnotify/
+######
+
 use warnings;
 use IO::Socket::INET;
 use vars qw($VERSION %IRSSI);
-
 use Irssi;
-$VERSION = '0.1';
+
+$VERSION = '1.0';
 %IRSSI = (
 	authors     => 'Nathan Chowning',
 	contact     => 'nathanchowning@me.com',
@@ -14,10 +25,11 @@ $VERSION = '0.1';
 );
 
 ######
-# Parts of this script are based on my irssi-prowl-notifier script which is based
-# on fnotify created by Thorsten Leemhuis
-# http://www.leemhuis.info/files/fnotify/
+# Set the IP Address & Port for your server below
 ######
+
+my $IPADDRESS = '184.106.199.134';
+my $PORT = '5730';
 
 $| = 1; # Flush after write
 my ($socket,$client_socket);
@@ -46,8 +58,8 @@ sub nick_hilight {
 sub socketsend {
     my(@smessage) = @_;
     $socket = new IO::Socket::INET (
-        PeerHost => 'IP_ADDRESS',
-        PeerPort => 'PORT_NUMBER',
+        PeerHost => '$IPADDRESS',
+        PeerPort => '$PORT',
         Proto => 'tcp',
         ) or die "ERROR in Socket Creation : $!\n";
 

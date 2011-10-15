@@ -1,6 +1,6 @@
 use warnings;
 use IO::Socket::INET;
-use IO::Select;
+use Thread;
 
 # Flush after every write
 $| = 1;
@@ -8,94 +8,78 @@ $| = 1;
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
 
+our $message_check = 0;
+our @message_list;
+
+
 # Socket creation
 $socket = new IO::Socket::INET (
-    LocalHost => 'IP_ADDRESS',
-    LocalPort => 'PORT_NUMBER',
+    LocalHost => '184.106.199.134',
+    LocalPort => '5730',
     Proto => 'tcp',
     Listen => 5,
     Reuse => 1
     ) or die "Error in Socket Creation : $!\n";
 
-# Create a handle set
-my ($read_set) = new IO::Select();
-# Add the main socket to the set
-$read_set->add($socket);
-
 print "Listening for connections\n\n";
 
 while(1) # To infinity and beyond!
 {
-    # Get a set of (somewhat) usable handles
-    my ($rh_set) = IO::Select->select($read_set, undef, undef, 0);
-
-    # Use each handle
-    foreach $rh (@$rh_set)
+    $client_socket = $socket->accept();
+    $buf = <$client_socket>;
+    if ($buf)
     {
-        # Accept the incoming connection and add it to the $read_set
-        if ($rh == $socket)
+        # Variables to hold the client's IP address and port
+        $peeraddress = $client_socket->peerhost();
+        $peerport = $client_socket->peerport();
+        print "Connection to: $peeraddress:$peerport established.\n\n";
+
+        # Check to see what the client is sending.
+        # If it's sending "send", call the &sendmessage subroutine.
+        # Otherwise call the &recievemessage subroutine.
+        if ($buf eq "send\n")
         {
-            $client_socket = $rh->accept();
-            $read_set->add($client_socket);
-        }
-        # Ordinary socket.  Read it and process.
-        else
-        {
-            $buf = <$rh>;
-            if ($buf)
+            &sendmessage;
+
+            # If $receiver has a defined value, a receiving client
+            # is connected in which case we need to call &receivemessage
+            # to send the new message onto the receiving client.
+            if(defined($receiver))
             {
-                # Variables to hold the client's IP address and port
-                $peeraddress = $client_socket->peerhost();
-                $peerport = $client_socket->peerport();
-                print "Connection to: $peeraddress:$peerport established.\n\n";
-
-                # Check to see what the client is sending.
-                # If it's sending "send", call the &sendmessage subroutine.
-                # Otherwise call the &recievemessage subroutine.
-                if ($buf eq "send\n")
-                {
-                    &sendmessage;
-
-                    # If $receiver has a defined value, a receiving client
-                    # is connected in which case we need to call &receivemessage
-                    # to send the new message onto the receiving client.
-                    if(defined($receiver))
-                    {
-                        &receivemessage;
-                    }
-                    else
-                    {
-                        # Send to Prowl... eventually
-                    }
-                }
-                else
-                {
-                    # If the client did not send "send" to the socket, it is a
-                    # receiving client.  Set the $receiver variable and call the
-                    # &receivemessage subroutine.
-                    $receiver = $rh;
-                    &receivemessage;
-                }
+                $message_check = 1;
+                &receivemessage;
             }
-            # The client has closed the socket.
             else
             {
-                # If $receiver is set, the receiving client is connected to the server.
-                if(defined($receiver))
-                {
-                    # Check to see if the disconnecting client is the receiving client.
-                    # If it is, undefine the $receiver variable.
-                    if($rh eq $receiver)
-                    {
-                        undef $receiver
-                    }
-                }
-                # Remove the client from $read_set and close it.
-                print "Client disconnected.\n\n";
-                $read_set->remove($rh);
-                close($rh);
+                # Send to Prowl... eventually
             }
         }
+        else
+        {
+            # If the client did not send "send" to the socket, it is a
+            # receiving client.  Set the $receiver variable and call the
+            # &receivemessage subroutine.
+            $receiver = $client_socket;
+            new Thread \&receivemessage;
+        }
+    }
+    # The client has closed the socket.
+    else
+    {
+        # If $receiver is set, the receiving client is connected to the server.
+        if(defined($receiver))
+        {
+            # Check to see if the disconnecting client is the receiving client.
+            # If it is, undefine the $receiver variable.
+            if($client_socket eq $receiver)
+            {
+                undef $receiver
+            }
+        }
+
+        # Remove the client from $read_set and close it.
+        print "Client disconnected.\n\n";
+        close($client_socket);
     }
 }
 
@@ -110,6 +94,7 @@ sub sendmessage
     # Receive the username from the client and store it in $username
     $username = <$client_socket>;
     print "Username: $username";
+    push (@message_list, $username);
 
     # Send the value "un" to the client to verify that the username was received
     $data = "un\n";
@@ -118,23 +103,24 @@ sub sendmessage
     # Receive the message from the client and store it in $message
     $message = <$client_socket>;
     print "Message: $message\n";
+    push (@message_list, $message);
 }
 
 sub receivemessage
 {
     # If the variable $username is defined, a message has been sent
-    if (defined($username))
+    if ($message_check == 1)
     {
         # Send the username to the client
-        print $receiver "$username";
-
+        print $receiver "$message_list[0]";
         # If the server received "thanks" form the receiving client proceed to
         # send the message to the client
         if (<$receiver> eq "thanks\n")
         {
-            print $receiver "$message";
+            print $receiver "$message_list[1]";
         }
+        @message_list = ();
         # Undefine the $username variable
-        undef($username);
+        $message_check = 0;
     }
 }
