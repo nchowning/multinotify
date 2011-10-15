@@ -68,6 +68,7 @@ SETTING UP THE DESKTOP CLIENT:
 ***************************************************************
 
 -Figure out what characters are causing random freezing and strip/escape them
+-Fix the desktop client issue involving long periods of inactivity
 -Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
 -Add support for snarl to the desktop client
 -Add support to the server to automatically send missed notifications to prowl
