@@ -11,7 +11,7 @@
 Description: A set of scripts (server, irssi client, desktop client) that work together to send and receive notifications from irssi.
 http://prowlapp.com/
 
-Version: 0.1
+Version: 1.1
 
 Author: Nathan Chowning (nathanchowning@me.com)
 
@@ -30,7 +30,7 @@ Author: Nathan Chowning (nathanchowning@me.com)
 ***************************************************************
 
 This script requires the following perl modules:
-Gtk2::Notify or Mac::Growl
+Gtk2::Notify or Cocoa::Growl
 WebService::Prowl (Not yet, but soon)
 IO::Socket::SSL (Not yet, but soon)
 
@@ -39,23 +39,25 @@ SETTING UP THE SERVER:
     -The default number of connections is 5 you can change that by modifying the "Listen" value
     -Be sure that you're not blocking access to the port that you decide to use
 
-    Once the server is setup, run it with:
-    perl multinotify-server.pl
+    Once the server is setup, run it with the following command:
+        perl multinotify-server.pl
 
 SETTING UP THE IRSSI CLIENT:
-    -Edit multinotify-irssi.pl to change IP_ADDRESS and PORT_NUMBER (located in the socketsend
-    subroutine) to match the values that you entered in multinotify-server.pl
+    -Edit multinotify-irssi.pl to change $IPADDRESS and $PORT variable values to match the
+     values set in multinotify-server.pl
 
-    Once you've edited it, copy it to ~/.irssi/scripts/ and do:
-    /script load multinotify-irssi.pl
+    Once you've edited it, copy it to ~/.irssi/scripts/ and execute the following command inside
+    of irssi:
+        /script load multinotify-irssi.pl
 
 SETTING UP THE DESKTOP CLIENT:
-    -Edit multinotify-client.pl to change IP_ADDRESS and PORT_NUMBER to match the values that
-    you entered in multinotify-server.pl
-    -You'll need to have Gtk2::Notify on the computer that you'll be running this on
+    -Edit multinotify-client.pl to change $IPADDRESS and $PORT variable values to match the
+     values set in multinotify-server.pl
+    -You'll need to have Gtk2::Notify (Linux) or Cocoa::Growl (Mac) on the computer that
+     you'll be running this on
 
     Once you've edited it, run it with:
-    perl multinotify-client.pl
+        perl multinotify-client.pl
 
                      _            _       
                     | |          | |      
@@ -65,6 +67,23 @@ SETTING UP THE DESKTOP CLIENT:
                      \__\___/ \__,_|\___/
 ***************************************************************
 
+-Figure out what characters are causing random freezing and strip/escape them
 -Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
 -Add support for snarl to the desktop client
 -Add support to the server to automatically send missed notifications to prowl
+
+                 _                                
+                | |                               
+             ___| |__   __ _ _ __   __ _  ___ ___ 
+            / __| '_ \ / _` | '_ \ / _` |/ _ | __|
+           | (__| | | | (_| | | | | (_| |  __|__ \
+            \___|_| |_|\__,_|_| |_|\__, |\___|___/
+                                    __/ |         
+                                   |___/          
+***************************************************************
+
+VERSION 1.0:
+    -Removed use of IO::Select from the server in favor of creating a new thread for
+     receiving clients
+    -Updated the Desktop client to use Cocoa::Growl as opposed to Mac::Growl as
+     Mac::Growl does not play well with 64-bit OS X.
