@@ -9,8 +9,9 @@
 use constant APP_NAME => 'multinotify-client';
 use IO::Socket::INET;
 
-my $IPADDRESS = '184.106.199.134';
-my $PORT = '5730';
+my $os = $^O;
+my $IPADDRESS = 'IP ADDRESS IN HERE';
+my $PORT = 'PORT IN HERE';
 my $notifier;
 
 # Check to see which notification modules are installed
@@ -19,9 +20,8 @@ if (eval{ require Gtk2::Notify; })
 {
     $notifier = 'libnotify';
 }
-elsif (eval{ require Cocoa::Growl;})
+elsif (eval{ require Cocoa::Growl; })
 {
-    use Cocoa::Growl ':all';
     $notifier = 'growl';
 }
 else
@@ -93,14 +93,14 @@ sub notify
     elsif ($notifier eq 'growl')
     {
         # Create growl notifier
-        growl_register(
+        Cocoa::Growl::growl_register(
             app           => 'irssi',
             icon          => 'irssi.png',
             notifications => [qw(irssi)],
         );
         
         # Show growl notification
-        growl_notify(
+        Cocoa::Growl::growl_notify(
             name        => 'irssi',
             title       => "Message from: $username",
             description => "$message"

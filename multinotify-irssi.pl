@@ -28,8 +28,8 @@ $VERSION = '1.0';
 # Set the IP Address & Port for your server below
 ######
 
-my $IPADDRESS = '184.106.199.134';
-my $PORT = '5730';
+my $IPADDRESS = 'IP ADDRESS IN HERE';
+my $PORT = 'PORT IN HERE';
 
 $| = 1; # Flush after write
 my ($socket,$client_socket);

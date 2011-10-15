@@ -14,8 +14,8 @@ our @message_list;
 
 # Socket creation
 $socket = new IO::Socket::INET (
-    LocalHost => '184.106.199.134',
-    LocalPort => '5730',
+    LocalHost => 'IP ADDRESS IN HERE',
+    LocalPort => 'PORT IN HERE',
     Proto => 'tcp',
     Listen => 5,
     Reuse => 1
