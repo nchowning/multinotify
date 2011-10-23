@@ -8,7 +8,7 @@ $| = 1;
 
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
-our @connections = ();
+our %connections = ();
 
 # Socket creation
 $socket = new IO::Socket::INET (
@@ -51,7 +51,7 @@ while(1) # To infinity and beyond!
         elsif ($buf eq "receive\n")
         {
 # TODO: Need to make sure that this client doesn't already exist in the array
-            push (@connections, $client_socket);
+            $connections { $client_socket } = 0;
             &verifycon;
         }
     }
@@ -79,7 +79,7 @@ sub receivemessage
 
     if (&verifycon == 1)
     {
-        foreach my $receiver (@connections)
+        foreach my $receiver (keys %connections)
         {
             # Adds 1 to the csv packet to signify that the packet is a message
             my $data = "1,$message";
@@ -94,7 +94,27 @@ sub receivemessage
     }
 }
 
-#TODO: Create &verifycon
-# When called, &verifycon will send a "hello_client" packet to all clients that exist in the connection
-# array.  If it does not receive "hello_server" from the client, it will remove that connection from
-# the array.  Returns 1 if a connection exists.  Returns 0 otherwise.
+sub verifycon
+{
+    foreach my $receiver (keys %connections)
+    {
+        my $data = "hello_client";
+        print $receiver "$data\n";
+
+        my $reply = <$receiver>;
+        chomp($reply);
+        if ($reply ne "hello_server")
+        {
+            delete $connections{$receiver};
+        }
+    }
+
+    if (!keys %connections)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
