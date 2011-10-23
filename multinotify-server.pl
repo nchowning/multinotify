@@ -43,7 +43,7 @@ while(1) # To infinity and beyond!
 # TODO: Need to verify that a listening client is connected.  If not, forward to prowl
             &receivemessage;
         }
-        elsif ($but eq "receive\n")
+        elsif ($buf eq "receive\n")
         {
 # TODO: Add $client_socket to the connection hash
             $receiver = $client_socket;
