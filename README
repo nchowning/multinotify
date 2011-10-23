@@ -11,7 +11,7 @@
 Description: A set of scripts (server, irssi client, desktop client) that work together to send and receive notifications from irssi.
 http://prowlapp.com/
 
-Version: 1.2
+Version: 1.3
 
 Author: Nathan Chowning (nathanchowning@me.com)
 
@@ -68,7 +68,6 @@ SETTING UP THE DESKTOP CLIENT:
 ***************************************************************
 
 -Fix the desktop client issue involving long periods of inactivity (Maybe fixed: testing)
--Add message formatting (line breaks, stripping characters, etc...) for libnotify
 -Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
 -Add support for snarl to the desktop client
 -Add support to the server to automatically send missed notifications to prowl
@@ -82,14 +81,18 @@ SETTING UP THE DESKTOP CLIENT:
                                     __/ |         
                                    |___/          
 ***************************************************************
-VERSION 1.2 Experimental:
+VERSION 1.3:
+    -Added formatting for messages delivered via libnotify to the desktop client
+
+VERSION 1.2:
     -Added multi-client support.  You can now run multiple irssi clients as well as
      multiple desktop clients.
     -Fixed issue with parameters passed to the &sendmessage subroutine in the server
     -Fixed connection issues with multiple receiving clients when a client disconnects
     -Fixed a lot of random stability issues
+    -HUGE server code rewrite
 
-VERSION 1.1 Experimental:
+VERSION 1.1:
     -Rewrote a good portion of the server code & added a lot of comments for things
      to add in the future
 

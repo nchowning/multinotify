@@ -9,12 +9,17 @@
 use constant APP_NAME => 'multinotify-client';
 use IO::Socket::INET;
 
+######
+# USER VARIABLES
+######
+
 my $IPADDRESS = "IP ADDRESS IN HERE";
 my $PORT = "PORT IN HERE";
-my $notifier;
+my $MAXLENGTH = 40; # Only used with libnotify
 
 # Check to see which notification modules are installed
 # If none are installed, die
+my $notifier;
 if (eval{ require Gtk2::Notify; })
 {
     $notifier = 'libnotify';
@@ -110,27 +115,40 @@ sub notify
 
 sub formatmsg
 {
-    my $message = $_[0];
+    my ($message,$MAXLENGTH) = @_;
 
     # Strip characters that break libnotify
     $message =~ s/</(less than)/g;
     $message =~ s/>/(greater than)/g;
     $message =~ s/&/(AND)/g;
 
+    # Variables for use in the formatting loop
     my $newmsg = "";
     my $substart = 0;
     my $msgbrk;
-    my $line = substr($message,$substart,50);
+    my $line = substr($message,$substart,$MAXLENGTH);
     my $linecount = 0;
 
-    while (length($line) >= 50 and $linecount < 5)
+    # If the first four characters are http, no need to enter the loop
+    # Set the linecount to 5 so it skips the loop.
+    if (substr($message,0,4) eq "http")
     {
+        $newmsg = substr($message,0,$MAXLENGTH);
+        $linecount = 5;
+    }
+
+    # Only enter the loop if the length is greater than MAXLENGTH (40 by
+    # default, and it has printed fewer than 5 lines already
+    while (length($line) >= $MAXLENGTH and $linecount < 5)
+    {
+        # Finds the last occurrence of whitespace on this line, sets the
+        # next iteration's starting point, and generates the substring
+        # of the line up to the last occurrence of white space.
         $msgbrk = rindex($line," ");
         $substart = $substart + $msgbrk + 1;
         $line = substr($line,0,$msgbrk);
 
-        print "$line\n";
-
+        # If the newmsg variable is empty, this is the first line
         if ($newmsg eq "")
         {
             $newmsg = $line;
@@ -140,18 +158,23 @@ sub formatmsg
             $newmsg = $newmsg . "\n" . $line;
         }
 
-        $line = substr($message,$substart,50);
+        # Create the next line for the next iteration and increment
+        # the line counter by 1
+        $line = substr($message,$substart,$MAXLENGTH);
         $linecount += 1;
     }
+
+    # Check to see which condition caused the loop to exit and act
     if ($linecount == 5)
     {
         $newmsg = $newmsg . "\n...";
     }
     else
     {
-        # Add the final line
-        $newmsg = $newmsg . "\n" . substr($message,$substart,50);
+        # Print the final line
+        $newmsg = $newmsg . "\n" . substr($message,$substart,$MAXLENGTH);
     }
 
+    # Send the newly formatted message back to the caller
     return $newmsg;
 }
