@@ -9,7 +9,6 @@
 use constant APP_NAME => 'multinotify-client';
 use IO::Socket::INET;
 
-my $os = $^O;
 my $IPADDRESS = 'IP ADDRESS IN HERE';
 my $PORT = 'PORT IN HERE';
 my $notifier;
