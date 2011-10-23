@@ -2,19 +2,29 @@
 use strict;
 use warnings;
 use IO::Socket::INET;
+use WebService::Prowl;
 
 # Flush after every write
 $| = 1;
 
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
+my ($IPADDRESS,$PORT,$PROWLKEY);
 our $check_time = time();
 our (@connections,@newconnections);
 
+######
+# USER VARIABLES
+######
+
+$IPADDRESS = "IP ADDRESS GOES HERE";
+$PORT = "PORT GOES HERE";
+$PROWLKEY = "PROWL API KEY GOES HERE";
+
 # Socket creation
 $socket = new IO::Socket::INET (
-    LocalHost => "IP ADDRESS IN HERE",
-    LocalPort => "PORT IN HERE",
+    LocalHost => "$IPADDRESS",
+    LocalPort => "$PORT",
     Proto => 'tcp',
     Listen => 5,
     Reuse => 1
@@ -56,7 +66,8 @@ while(1) # To infinity and beyond!
             }
             else
             {
-                # Send to prowl
+                my @prowlmessage = split (",,",$messagepack);
+                &prowlsend(@prowlmessage[0],@prowlmessage[1],@prowlmessage[2]);
             }
         }
         elsif ($buf eq "receive\n")
@@ -177,4 +188,14 @@ sub verifycon
     {
         return 0;
     }
+}
+
+sub prowlsend {
+    my(@smessage) = @_;
+    my $ws = WebService::Prowl->new(apikey => $smessage[2]);
+    $ws->verify || die $ws->error();
+    $ws->add(application => "irssi",
+        event => @smessage[0],
+        description => @smessage[1],
+        url => "")
 }
