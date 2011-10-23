@@ -82,6 +82,8 @@ SETTING UP THE DESKTOP CLIENT:
                                     __/ |         
                                    |___/          
 ***************************************************************
+VERSION 1.1 Experimental:
+    -Rewrote a good portion of the server code to clean things up
 
 VERSION 1.0:
     -Removed use of IO::Select from the server in favor of creating a new thread for
