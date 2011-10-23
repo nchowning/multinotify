@@ -52,7 +52,7 @@ while(1)
     # it into @receivear
     $received = <$socket>;
     chomp($received);
-    my @receivear = split(",",$received);
+    my @receivear = split(",,",$received);
 
     # Check to see what the server has sent
     if ($received eq "hello_client")

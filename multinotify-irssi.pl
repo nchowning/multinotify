@@ -70,7 +70,7 @@ sub socketsend {
     # If the server approves our connection, send the username to the server
     if (<$socket> eq "approved\n")
     {
-        $data = "$smessage[0],$smessage[1]";
+        $data = "$smessage[0],,$smessage[1]";
         print $socket "$data\n";
     }
 
