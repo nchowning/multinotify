@@ -11,7 +11,7 @@
 Description: A set of scripts (server, irssi client, desktop client) that work together to send and receive notifications from irssi.
 http://prowlapp.com/
 
-Version: 1.1 Experimental
+Version: 1.2 Experimental
 
 Author: Nathan Chowning (nathanchowning@me.com)
 
@@ -82,6 +82,11 @@ SETTING UP THE DESKTOP CLIENT:
                                     __/ |         
                                    |___/          
 ***************************************************************
+VERSION 1.2 Experimental:
+    -Fixed issue with parameters passed to the &sendmessage subroutine in the server
+    -Fixed connection issues with multiple receiving clients when a client disconnects
+    -Fixed a lot of random stability issues
+
 VERSION 1.1 Experimental:
     -Rewrote a good portion of the server code & added a lot of comments for things
      to add in the future

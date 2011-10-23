@@ -9,8 +9,8 @@
 use constant APP_NAME => 'multinotify-client';
 use IO::Socket::INET;
 
-my $IPADDRESS = 'IP ADDRESS IN HERE';
-my $PORT = 'PORT IN HERE';
+my $IPADDRESS = "IP ADDRESS IN HERE";
+my $PORT = "PORT IN HERE";
 my $notifier;
 
 # Check to see which notification modules are installed
@@ -46,24 +46,32 @@ print "Connection Successful.\n";
 $data = "receive";
 print $socket "$data\n";
 
-while(<$socket>)
+while(1)
 {
-#    my ($username,$message);
+    # Store the received data (from the server) in $received and split
+    # it into @receivear
+    $received = <$socket>;
+    chomp($received);
+    my @receivear = split(",",$received);
 
-    # Store the username in $username and chomp it to remove the newline
-    chomp($username = $_);
+    # Check to see what the server has sent
+    if ($received eq "hello_client")
+    {
+        my $data = "hello_server";
+        print $socket "$data\n";
+    }
+    elsif ($receivear[0] eq "mess")
+    {
+        print "$receivear[1]: $receivear[2]\n";
+        notify($receivear[1], $receivear[2]);
+    }
+    else
+    {
+        sleep(1);
+    }
 
-    # Be courteous and tell the server "thanks"
-    $data = "thanks";
-    print $socket "$data\n";
-
-    # Store the message in $message and chomp it to remove the newline
-    chomp($message = <$socket>);
-
-    # Send the username and message to notify
-    notify($username, $message);
-    print "$username: $message\n";
-
+    # Set this to 2 so it will only enter the last else case unless updated
+    $receivedar[0] = 2;
 }
 $socket->close();
 

@@ -28,8 +28,8 @@ $VERSION = '1.0';
 # Set the IP Address & Port for your server below
 ######
 
-my $IPADDRESS = 'IP ADDRESS IN HERE';
-my $PORT = 'PORT IN HERE';
+my $IPADDRESS = "IP ADDRESS IN HERE";
+my $PORT = "PORT IN HERE";
 
 $| = 1; # Flush after write
 my ($socket,$client_socket);
@@ -70,14 +70,7 @@ sub socketsend {
     # If the server approves our connection, send the username to the server
     if (<$socket> eq "approved\n")
     {
-        $data = $smessage[0];
-        print $socket "$data\n";
-    }
-
-    # If the server receives the username successfully, send the message to the server
-    if (<$socket> eq "un\n")
-    {
-        $data = $smessage[1];
+        $data = "$smessage[0],$smessage[1]";
         print $socket "$data\n";
     }
 
