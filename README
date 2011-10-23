@@ -67,8 +67,8 @@ SETTING UP THE DESKTOP CLIENT:
                      \__\___/ \__,_|\___/
 ***************************************************************
 
--Figure out what characters are causing random freezing and strip/escape them
--Fix the desktop client issue involving long periods of inactivity
+-Fix the desktop client issue involving long periods of inactivity (Maybe fixed: testing)
+-Add message formatting (line breaks, stripping characters, etc...) for libnotify
 -Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
 -Add support for snarl to the desktop client
 -Add support to the server to automatically send missed notifications to prowl
@@ -83,6 +83,8 @@ SETTING UP THE DESKTOP CLIENT:
                                    |___/          
 ***************************************************************
 VERSION 1.2 Experimental:
+    -Added multi-client support.  You can now run multiple irssi clients as well as
+     multiple desktop clients.
     -Fixed issue with parameters passed to the &sendmessage subroutine in the server
     -Fixed connection issues with multiple receiving clients when a client disconnects
     -Fixed a lot of random stability issues
