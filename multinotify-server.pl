@@ -8,7 +8,7 @@ $| = 1;
 
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
-# TODO: Create hash to hold open connections
+my @connections = ();
 
 # Socket creation
 $socket = new IO::Socket::INET (
@@ -23,8 +23,8 @@ print "Listening for connections\n\n";
 
 while(1) # To infinity and beyond!
 {
-    $client_socket = $socket->accept();
-    $buf = <$client_socket>;
+    my $client_socket = $socket->accept();
+    my $buf = <$client_socket>;
     if ($buf)
     {
         # Variables to hold the client's IP address and port
@@ -34,21 +34,25 @@ while(1) # To infinity and beyond!
         print "Connection to: $peeraddress:$peerport established.\n\n";
 
         # Check to see what the client is sending.
-        # If it's sending "send", call the &sendmessage subroutine.
-        # Otherwise call the &recievemessage subroutine.
         if ($buf eq "send\n")
         {
-            &sendmessage;
+            my $messagepack = &sendmessage;
 
-# TODO: Need to verify that a listening client is connected.  If not, forward to prowl
-            &receivemessage;
+            # &verifycon returns 1 if a client is present and 0 otherwise
+            if (&verifycon == 1)
+            {
+            &receivemessage($messagepack);
+            }
+            else
+            {
+            # Send to prowl
+            }
         }
         elsif ($buf eq "receive\n")
         {
-# TODO: Add $client_socket to the connection hash
-            $receiver = $client_socket;
-# TODO: Call new subroutine &receiveinit
-            new Thread \&receivemessage;
+# TODO: Need to make sure that this client doesn't already exist in the array
+            push (@connections, $client_socket);
+            &receiveinit;
         }
     }
 }
@@ -60,22 +64,14 @@ sub sendmessage
     print "Send request from client $peeraddress:$peerport\n";
 
     # Send an approval message to the sending client
-    $data = "approved";
+    my $data = "approved";
     print $client_socket "$data\n";
 
-    # Receive the username from the client and store it in $username
-    $username = <$client_socket>;
-    print "Username: $username";
-    push (@message_list, $username);
+    # Receive the username and message from the client
+    my $received = <$client_socket>;
+    print "Received: \"$received\"";
 
-    # Send the value "un" to the client to verify that the username was received
-    $data = "un\n";
-    print $client_socket "$data\n";
-
-    # Receive the message from the client and store it in $message
-    $message = <$client_socket>;
-    print "Message: $message\n";
-    push (@message_list, $message);
+    return $received;
 }
 
 # TODO: Initially needs to verify that a client connection exists in the connection hash.
@@ -83,20 +79,15 @@ sub sendmessage
 # rather than separate packets for each piece of info
 sub receivemessage
 {
-    # If the variable $username is defined, a message has been sent
-    if ($message_check == 1)
+    # Store the message (passed as a parameter)
+    my $message = "$_";
+
+# TODO: Call &verifycon before starting this loop
+
+    foreach my $receiver (@connections)
     {
-        # Send the username to the client
-        print $receiver "$message_list[0]";
-        # If the server received "thanks" form the receiving client proceed to
-        # send the message to the client
-        if (<$receiver> eq "thanks\n")
-        {
-            print $receiver "$message_list[1]";
-        }
-        @message_list = ();
-        # Undefine the $username variable
-        $message_check = 0;
+        # Send the message packet to the client
+        print $receiver "$message";
     }
 }
 
