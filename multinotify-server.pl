@@ -8,6 +8,7 @@ $| = 1;
 
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
+our $check_time = time();
 our (@connections,@newconnections);
 
 # Socket creation
@@ -23,6 +24,14 @@ print "Listening for connections\n\n";
 
 while(1) # To infinity and beyond!
 {
+    my $current_time = time();
+    if (($check_time + 300) < $current_time)
+    {
+        print "Checking for active receiving clients\n\n";
+        &verifycon;
+        $check_time = time();
+    }
+
     my $client_socket = $socket->accept();
     my $buf = <$client_socket>;
     if ($buf)
@@ -31,7 +40,7 @@ while(1) # To infinity and beyond!
         $peeraddress = $client_socket->peerhost();
         $peerport = $client_socket->peerport();
 
-        print "Connection to: $peeraddress:$peerport established.\n\n";
+        print "Connection to: $peeraddress:$peerport established.\n";
 
         # Check to see what the client is sending.
         if ($buf eq "send\n")
@@ -74,7 +83,7 @@ sub sendmessage
     my $received = <$client_socket>;
     chomp($received);
 
-    print "Received: \"$received\"\n";
+    print "Received: \"$received\"\n\n";
 
     # Return the message packet from the sending client
     return $received;
@@ -91,7 +100,7 @@ sub receivemessage
         foreach my $receiver (@connections)
         {
             # Adds "mess" to the csv packet to signify that the packet is a message
-            my $data = "mess,$message";
+            my $data = "mess,,$message";
 
             # Send the message packet to the client
             print $receiver "$data\n";
