@@ -82,14 +82,7 @@ sub notify
 
     if ($notifier eq 'libnotify')
     {
-        ######
-        # Need to add line breaks at a certain point as libnotify doesn't
-        # clean that up for you (like growl does).
-        ######
-
-        # Strip '<' and '>' from the message
-        $message =~ s/<//g;
-        $message =~ s/>//g;
+        $message = &formatmsg($message);
 
         # Create the notification
         my $notification = Gtk2::Notify->new($username, $message, 'irssi.png');
@@ -113,4 +106,52 @@ sub notify
             description => "$message"
         );
     }
+}
+
+sub formatmsg
+{
+    my $message = $_[0];
+
+    # Strip characters that break libnotify
+    $message =~ s/</(less than)/g;
+    $message =~ s/>/(greater than)/g;
+    $message =~ s/&/(AND)/g;
+
+    my $newmsg = "";
+    my $substart = 0;
+    my $msgbrk;
+    my $line = substr($message,$substart,50);
+    my $linecount = 0;
+
+    while (length($line) >= 50 and $linecount < 5)
+    {
+        $msgbrk = rindex($line," ");
+        $substart = $substart + $msgbrk + 1;
+        $line = substr($line,0,$msgbrk);
+
+        print "$line\n";
+
+        if ($newmsg eq "")
+        {
+            $newmsg = $line;
+        }
+        else
+        {
+            $newmsg = $newmsg . "\n" . $line;
+        }
+
+        $line = substr($message,$substart,50);
+        $linecount += 1;
+    }
+    if ($linecount == 5)
+    {
+        $newmsg = $newmsg . "\n...";
+    }
+    else
+    {
+        # Add the final line
+        $newmsg = $newmsg . "\n" . substr($message,$substart,50);
+    }
+
+    return $newmsg;
 }
