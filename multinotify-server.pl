@@ -8,7 +8,7 @@ $| = 1;
 
 my ($socket,$client_socket);
 my ($peeraddress,$peerport);
-my @connections = ();
+our @connections = ();
 
 # Socket creation
 $socket = new IO::Socket::INET (
@@ -41,24 +41,22 @@ while(1) # To infinity and beyond!
             # &verifycon returns 1 if a client is present and 0 otherwise
             if (&verifycon == 1)
             {
-            &receivemessage($messagepack);
+                &receivemessage($messagepack);
             }
             else
             {
-            # Send to prowl
+                # Send to prowl
             }
         }
         elsif ($buf eq "receive\n")
         {
 # TODO: Need to make sure that this client doesn't already exist in the array
             push (@connections, $client_socket);
-            &receiveinit;
+            &verifycon;
         }
     }
 }
 
-# TODO: Clean this up.  Send csv packets (username,message,etc...) rather than
-# separate packets for each piece of info
 sub sendmessage
 {
     print "Send request from client $peeraddress:$peerport\n";
@@ -74,28 +72,29 @@ sub sendmessage
     return $received;
 }
 
-# TODO: Initially needs to verify that a client connection exists in the connection hash.
-# Needs to verify the connection (will write a new sub for that), and then send a csv packet
-# rather than separate packets for each piece of info
 sub receivemessage
 {
     # Store the message (passed as a parameter)
     my $message = "$_";
 
-# TODO: Call &verifycon before starting this loop
-
-    foreach my $receiver (@connections)
+    if (&verifycon == 1)
     {
-        # Send the message packet to the client
-        print $receiver "$message";
+        foreach my $receiver (@connections)
+        {
+            # Adds 1 to the csv packet to signify that the packet is a message
+            my $data = "1,$message";
+
+            # Send the message packet to the client
+            print $receiver "$data\n";
+        }
+    }
+    else
+    {
+        print "No receiving clients exist.  Something went wrong.\n\n";
     }
 }
 
-#TODO: Create &receiveinit
-# &receiveinit will verify that the client connection was added to the hash and then verify
-# that the client is indeed connected
-
 #TODO: Create &verifycon
 # When called, &verifycon will send a "hello_client" packet to all clients that exist in the connection
-# hash.  If it does not receive "hello_server" from the client, it will remove that connection from
-# the hash.
+# array.  If it does not receive "hello_server" from the client, it will remove that connection from
+# the array.  Returns 1 if a connection exists.  Returns 0 otherwise.
