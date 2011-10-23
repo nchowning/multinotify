@@ -83,7 +83,8 @@ SETTING UP THE DESKTOP CLIENT:
                                    |___/          
 ***************************************************************
 VERSION 1.1 Experimental:
-    -Rewrote a good portion of the server code to clean things up
+    -Rewrote a good portion of the server code & added a lot of comments for things
+     to add in the future
 
 VERSION 1.0:
     -Removed use of IO::Select from the server in favor of creating a new thread for
