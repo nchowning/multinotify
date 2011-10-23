@@ -30,9 +30,8 @@ Author: Nathan Chowning (nathanchowning@me.com)
 ***************************************************************
 
 This script requires the following perl modules:
-Gtk2::Notify or Cocoa::Growl
-WebService::Prowl (Not yet, but soon)
-IO::Socket::SSL (Not yet, but soon)
+Gtk2::Notify or Cocoa::Growl (Destkop Client)
+WebService::Prowl (Server)
 
 SETTING UP THE SERVER:
     -Edit multinotify-server.pl and add the listening IP address as well as the listening port
@@ -67,10 +66,8 @@ SETTING UP THE DESKTOP CLIENT:
                      \__\___/ \__,_|\___/
 ***************************************************************
 
+-Add Snarl support for Windows users
 -Fix the desktop client issue involving long periods of inactivity (Maybe fixed: testing)
--Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
--Add support for snarl to the desktop client
--Add support to the server to automatically send missed notifications to prowl
 
                  _                                
                 | |                               
@@ -81,8 +78,10 @@ SETTING UP THE DESKTOP CLIENT:
                                     __/ |         
                                    |___/          
 ***************************************************************
+
 VERSION 1.3:
     -Added formatting for messages delivered via libnotify to the desktop client
+    -Added prowl support to the server
 
 VERSION 1.2:
     -Added multi-client support.  You can now run multiple irssi clients as well as
@@ -94,7 +93,7 @@ VERSION 1.2:
 
 VERSION 1.1:
     -Rewrote a good portion of the server code & added a lot of comments for things
-     to add in the future
+     to add in the future.  Removed extra thread creation as it's no longer necessary
 
 VERSION 1.0:
     -Removed use of IO::Select from the server in favor of creating a new thread for
