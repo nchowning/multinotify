@@ -17,6 +17,8 @@ my $notifier;
 # If none are installed, die
 if (eval{ require Gtk2::Notify; })
 {
+    # If you experience notify-init() errors, uncomment the following line
+    #use Gtk2::Notify  -init, 'Multinotify';
     $notifier = 'libnotify';
 }
 elsif (eval{ require Cocoa::Growl; })
