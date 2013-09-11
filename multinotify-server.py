@@ -34,9 +34,11 @@ class Multinotify(LineReceiver):
         # If the user diconnects, remove them from the dict
         clientDict = self.returnClientDict(self.clientType)
 
-        if clientDict.has_key(self.clientNum):
+        if (clientDict != None and clientDict.has_key(self.clientNum)):
             print self.returnClientID() + " disconnected."
             del clientDict[self.clientNum]
+        else:
+            print "Uninitialized client has disconnected."
 
     def lineReceived(self, line):
         # Ensure that clientType has been set

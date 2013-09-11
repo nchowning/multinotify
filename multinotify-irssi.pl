@@ -58,21 +58,18 @@ sub nick_hilight {
 sub socketsend {
     my(@smessage) = @_;
     $socket = new IO::Socket::INET (
-        PeerHost => '$IPADDRESS',
-        PeerPort => '$PORT',
-        Proto => 'tcp',
+        PeerHost => "$IPADDRESS",
+        PeerPort => "$PORT",
+        Proto => "tcp",
         ) or die "ERROR in Socket Creation : $!\n";
 
     # Send "send" to the server to inform it that this is a sending client
-    $data = "send";
-    print $socket "$data\n";
+    $data = "SEND";
+    print $socket "$data" . "\r\n";
 
-    # If the server approves our connection, send the username to the server
-    if (<$socket> eq "approved\n")
-    {
-        $data = "$smessage[0],,$smessage[1]";
-        print $socket "$data\n";
-    }
+    # Send the message to the server
+    $data = "$smessage[0],,$smessage[1]";
+    print $socket "$data" . "\r\n";
 
     # Close the socket
     close($socket);
