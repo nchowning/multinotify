@@ -3,6 +3,9 @@
 ######
 # Multinotify Desktop Client
 # nchowning, 2011 - nathanchowning@me.com
+#
+# Warning: This may not work. I've bandaided it to work with the new
+# multinotify server but I have not tested it very far
 ######
 
 # Set the app name and load the socket module
@@ -42,11 +45,15 @@ $socket = new IO::Socket::INET (
     PeerPort => "$PORT",
     Proto => 'tcp',
     ) or die "ERROR in Socket Creation : $!\n";
-
 print "Connection Successful.\n";
 
-$data = "receive";
-print $socket "$data\n";
+# Tell the server that this is a GET client
+$data = "GET";
+print $socket "$data" . "\r\n";
+
+# Await the server's confirmation
+$received = <$socket>;
+print "Connected as " . $received;
 
 while(1)
 {
@@ -56,24 +63,8 @@ while(1)
     chomp($received);
     my @receivear = split(",,",$received);
 
-    # Check to see what the server has sent
-    if ($received eq "hello_client")
-    {
-        my $data = "hello_server";
-        print $socket "$data\n";
-    }
-    elsif ($receivear[0] eq "mess")
-    {
         print "$receivear[1]: $receivear[2]\n";
         notify($receivear[1], $receivear[2]);
-    }
-    else
-    {
-        sleep(1);
-    }
-
-    # Set this to 2 so it will only enter the last else case unless updated
-    $receivedar[0] = 2;
 }
 $socket->close();
 

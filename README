@@ -9,9 +9,8 @@
 ***************************************************************
 
 Description: A set of scripts (server, irssi client, desktop client) that work together to send and receive notifications from irssi.
-http://prowlapp.com/
 
-Version: 1.2
+Version: 1.5
 
 Author: Nathan Chowning (nathanchowning@me.com)
 
@@ -29,22 +28,32 @@ Author: Nathan Chowning (nathanchowning@me.com)
                                  |___/
 ***************************************************************
 
-This script requires the following perl modules:
-Gtk2::Notify or Cocoa::Growl
-WebService::Prowl (Not yet, but soon)
-IO::Socket::SSL (Not yet, but soon)
+Server requirements:
+    Python 2.7 (no python 3 support)
+    Twisted (tested with v8.2)
+    docopt (tested with 0.6.1)
+
+Irssi client requirements:
+    Perl 5
+    IO::Socket::INET
+
+Desktop client requirements:
+    Perl 5
+    Gtk2::Notify or Cocoa::Growl
 
 SETTING UP THE SERVER:
-    -Edit multinotify-server.pl and add the listening IP address as well as the listening port
-    -The default number of connections is 5 you can change that by modifying the "Listen" value
+    -Edit multinotify-server.py and add the listening IP address as well as the listening port
     -Be sure that you're not blocking access to the port that you decide to use
 
     Once the server is setup, run it with the following command:
-        perl multinotify-server.pl
+        python multinotify-server.py
+
+    For additional run options, try:
+        python multinotify-server.py --help
 
 SETTING UP THE IRSSI CLIENT:
     -Edit multinotify-irssi.pl to change $IPADDRESS and $PORT variable values to match the
-     values set in multinotify-server.pl
+     values set in multinotify-server.py
 
     Once you've edited it, copy it to ~/.irssi/scripts/ and execute the following command inside
     of irssi:
@@ -67,34 +76,6 @@ SETTING UP THE DESKTOP CLIENT:
                      \__\___/ \__,_|\___/
 ***************************************************************
 
--Fix the desktop client issue involving long periods of inactivity (Maybe fixed: testing)
--Add message formatting (line breaks, stripping characters, etc...) for libnotify
--Use IO::Socket::SSL rather than IO::Socket::INET to secure the data
--Add support for snarl to the desktop client
--Add support to the server to automatically send missed notifications to prowl
-
-                 _                                
-                | |                               
-             ___| |__   __ _ _ __   __ _  ___ ___ 
-            / __| '_ \ / _` | '_ \ / _` |/ _ | __|
-           | (__| | | | (_| | | | | (_| |  __|__ \
-            \___|_| |_|\__,_|_| |_|\__, |\___|___/
-                                    __/ |         
-                                   |___/          
-***************************************************************
-VERSION 1.2 Experimental:
-    -Added multi-client support.  You can now run multiple irssi clients as well as
-     multiple desktop clients.
-    -Fixed issue with parameters passed to the &sendmessage subroutine in the server
-    -Fixed connection issues with multiple receiving clients when a client disconnects
-    -Fixed a lot of random stability issues
-
-VERSION 1.1 Experimental:
-    -Rewrote a good portion of the server code & added a lot of comments for things
-     to add in the future
-
-VERSION 1.0:
-    -Removed use of IO::Select from the server in favor of creating a new thread for
-     receiving clients
-    -Updated the Desktop client to use Cocoa::Growl as opposed to Mac::Growl as
-     Mac::Growl does not play well with 64-bit OS X.
+- Rewrite desktop client in python using twisted
+- Use IO::Socket::SSL in irssi client
+- Use SSL in server
