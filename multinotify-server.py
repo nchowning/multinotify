@@ -25,7 +25,7 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Initialize arguments
-arguments = docopt(__doc__, version='Multinotify Server 1.4')
+arguments = docopt(__doc__, version='Multinotify Server 1.5')
 
 def main():
     # Setup logging
