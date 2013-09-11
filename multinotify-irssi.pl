@@ -14,12 +14,12 @@ use IO::Socket::INET;
 use vars qw($VERSION %IRSSI);
 use Irssi;
 
-$VERSION = '1.0';
+$VERSION = '1.5';
 %IRSSI = (
 	authors     => 'Nathan Chowning',
 	contact     => 'nathanchowning@me.com',
 	name        => 'multinotify',
-	description => 'A script that works with multinotify-server.pl and multinotify-client.pl to send and receive irssi notifications',
+	description => 'A script that works with multinotify-server.py and multinotify-client.pl to send and receive irssi notifications',
 	url         => 'http://www.nathanchowning.com/projects/multinotify',
 	license     => 'GPL'
 );
