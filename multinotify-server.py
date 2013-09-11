@@ -19,11 +19,6 @@ from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
 from twisted.internet import reactor
 
-# Apparently the version of twisted I'm using throws deprecation
-# warnings when using transport.getPeer(). This is a temporary "fix"
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 # Initialize arguments
 arguments = docopt(__doc__, version='Multinotify Server 1.5')
 
@@ -45,12 +40,14 @@ def main():
         listenPort = 5730
 
     # Fire up the server
-    logForMe("debug","Starting server")
+    logForMe("info","Starting server")
+    logForMe("info","Listening on " + listenIP + ":" + str(listenPort))
     reactor.listenTCP(listenPort, MultinotifyFactory(), interface=listenIP)
     reactor.run()
-    logForMe("debug","Stopping server")
+    logForMe("info","Stopping server")
 
 def logForMe(severity,message):
+    # There's a better way of doing this, I'll clean it up later
     # Set logging level
     if (arguments["--loglevel"] == "info"):
         maxLog = 2
@@ -85,17 +82,17 @@ class Multinotify(LineReceiver):
         self.state = "GETCLIENTTYPE"
 
     def connectionMade(self):
-        logForMe("debug","Connection from peer: " + self.transport.getPeer()[1])
+        logForMe("debug","Connection from peer: " + self.transport.getPeer().host)
 
     def connectionLost(self, reason):
         # If the user diconnects, remove them from the dict
         clientDict = self.returnClientDict(self.clientType)
 
         if (clientDict != None and clientDict.has_key(self.clientNum)):
-            logForMe("debug","Disconnected peer: " + self.returnClientID() + "@" + self.transport.getPeer()[1])
+            logForMe("debug","Disconnected peer: " + self.returnClientID() + "@" + self.transport.getPeer().host)
             del clientDict[self.clientNum]
         else:
-            logForMe("debug","Uninitialized peer " + self.transport.getPeer()[1] + " has disconnected.")
+            logForMe("debug","Uninitialized peer " + self.transport.getPeer().host + " has disconnected.")
 
     def lineReceived(self, line):
         # Ensure that clientType has been set
@@ -124,7 +121,7 @@ class Multinotify(LineReceiver):
         self.state = "CHAT"
 
         # Logging
-        logForMe("debug", self.transport.getPeer()[1] + " initialized as " + self.returnClientID())
+        logForMe("debug", self.transport.getPeer().host + " initialized as " + self.returnClientID())
 
     def handle_CHAT(self, message):
         # If the sending client is a SEND client and GET clients are connected
