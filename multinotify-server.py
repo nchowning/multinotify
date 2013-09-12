@@ -1,8 +1,8 @@
 """Multinotify Server
 
 Usage:
-  multinotify-server.py [--loglevel=<loglevel>] [--log=<filename>]
-  multinotify-server.py <ipaddress> <port> [--loglevel=(info | debug | warning)] [--log=<filename>]
+  multinotify-server.py [--loglevel=<loglevel>] [--log=<filename>] [--ssl]
+  multinotify-server.py <ipaddress> <port> [--loglevel=(info | debug | warning)] [--log=<filename>] [--ssl]
   multinotify-server.py (-h | --help)
   multinotify-server.py --version
 
@@ -11,13 +11,14 @@ Options:
   --version                             Show version.
   --loglevel=(info | debug | warning)   Set logging verbosity
   --log=<filename>                      Set log file name
+  --ssl                                 Enable SSL
 
 """
 from docopt import docopt
 import logging
 from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
 
 # Initialize arguments
 arguments = docopt(__doc__, version='Multinotify Server 1.5')
@@ -39,12 +40,28 @@ def main():
         listenIP = "127.0.0.1"
         listenPort = 5730
 
-    # Fire up the server
-    logForMe("info","Starting server")
-    logForMe("info","Listening on " + listenIP + ":" + str(listenPort))
-    reactor.listenTCP(listenPort, MultinotifyFactory(), interface=listenIP)
-    reactor.run()
-    logForMe("info","Stopping server")
+    # START SERVER USING SSL
+    if (arguments.has_key("--ssl") and arguments["--ssl"]):
+        # Load key & cert for SSL
+        with open("certs/server.key") as keyFile:
+            with open("certs/server.crt") as certFile:
+                cert = ssl.PrivateCertificate.loadPEM(
+                    keyFile.read() + certFile.read())
+
+        # Fire up the server
+        logForMe("info","Starting secure server")
+        logForMe("info","Listening on " + listenIP + ":" + str(listenPort))
+        reactor.listenSSL(listenPort, MultinotifyFactory(), cert.options(), interface=listenIP)
+        reactor.run()
+        logForMe("info","Stopping secure server")
+    # START UNSECURED SERVER
+    else:
+        # Fire up the server
+        logForMe("info","Starting unsecured server")
+        logForMe("info","Listening on " + listenIP + ":" + str(listenPort))
+        reactor.listenTCP(listenPort, MultinotifyFactory(), interface=listenIP)
+        reactor.run()
+        logForMe("info","Stopping unsecured server")
 
 def logForMe(severity,message):
     # There's a better way of doing this, I'll clean it up later
