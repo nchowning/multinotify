@@ -83,7 +83,6 @@ def logForMe(severity,message):
         logging.warning(message)
 
 class Multinotify(LineReceiver):
-
     def __init__(self, sendClients, getClients):
         # Dict reference of send & get clients
         self.sendClients = sendClients
@@ -142,7 +141,7 @@ class Multinotify(LineReceiver):
 
     def handle_CHAT(self, message):
         # If the sending client is a SEND client and GET clients are connected
-        if (self.clientType == "SEND" and len(self.getClients) > 0):
+        if (self.clientType == "SEND"):# and len(self.getClients) > 0):
             # Debug printing
             logForMe("debug",self.returnClientID() + " sent message \"" + message + "\"")
 
@@ -168,7 +167,6 @@ class Multinotify(LineReceiver):
         return str(self.clientType) + ":" + str(self.clientNum)
 
 class MultinotifyFactory(Factory):
-
     def __init__(self):
         self.sendClients = {}
         self.getClients = {}
